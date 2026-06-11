@@ -27,11 +27,11 @@ state stored in MongoDB.
 
 ## Projects
 
-| Project | Role                                                                                                                                                    |
-| --- |---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AppHost` | Aspire app host — runs MongoDB, the workflow service with its Dapr sidecar, and the Diagrid dashboard. Declares the Dapr state store components inline. |
-| `Worker` | ASP.NET Core service (registered as `worker` in Aspire) hosting the workflow, activities, and management endpoints.                                     |
-| `ServiceDefaults` | Shared Aspire telemetry/health defaults.                                                                                                                |
+| Project | Role                                                                                                                                                  |
+| --- |-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AppHost` | Aspire app host — runs MongoDB, the worker service with its Dapr sidecar, and the Diagrid dashboard. Declares the Dapr state store components inline. |
+| `Worker` | ASP.NET Core service (registered as `worker` in Aspire) hosting the workflow, activities, and management endpoints.                                   |
+| `ServiceDefaults` | Shared Aspire telemetry/health defaults.                                                                                                              |
 
 The Dapr MongoDB state store component (`statestore`, `actorStateStore: true`) is
 generated programmatically in `AppHost.cs` rather than living in a static YAML file. A
@@ -57,7 +57,7 @@ need different connection params.
 ## Run
 
 ```bash
-dotnet run --project DaprWorkflowIntro.AppHost
+dotnet run --project AppHost
 ```
 
 Open the Aspire dashboard (URL printed on startup) to watch MongoDB, the workflow
@@ -65,18 +65,18 @@ service, its Dapr sidecar, and the Diagrid dashboard come up.
 
 ## Drive the demo
 
-The singleton starts automatically. Use the workflow service base URL shown in the
-Aspire dashboard (`<workflow-url>` below) to observe it:
+The singleton starts automatically. Use the worker service base URL shown in the
+Aspire dashboard (`<worker-url>` below) to observe it:
 
 ```bash
 # Check the live workflow status from the Dapr workflow engine
-curl <workflow-url>/grid/status
+curl <worker-url>/grid/status
 
 # Read the latest dispatch posture persisted to MongoDB (region is required)
-curl "<workflow-url>/grid?region=BRUSSELS-CAPITAL"
+curl "<worker-url>/grid?region=BRUSSELS-CAPITAL"
 
 # Stop the singleton
-curl -X POST <workflow-url>/grid/stop
+curl -X POST <worker-url>/grid/stop
 ```
 
 Restarting the service confirms the singleton behaviour — the hosted service finds the
