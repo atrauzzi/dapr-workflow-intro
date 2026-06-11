@@ -22,7 +22,7 @@ Each cycle the workflow operates on a single region (default `BRUSSELS-CAPITAL`)
 4. Waits one cycle (15 s) on a durable timer, then `ContinueAsNew` to loop with
    compacted history.
 
-A **Diagrid dashboard** also runs alongside the workflow, giving a read-only view of the
+A **[Diagrid dashboard](https://github.com/diagrid-labs/dashboard-aspire)** also runs alongside the workflow, giving a read-only view of the
 state stored in MongoDB.
 
 ## Projects
