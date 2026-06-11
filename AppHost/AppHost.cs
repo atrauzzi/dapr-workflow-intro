@@ -98,7 +98,7 @@ builder
 var workerComponents = builder.AddYamlFileGroup("worker-components", [ stateComponent ]);
 
 builder
-    .AddProject<Projects.Worker>("workflow")
+    .AddProject<Projects.Worker>("worker")
     .WithReference(gridDb)
     .WaitFor(gridDb)
     .WithDaprSidecar(new DaprSidecarOptions
