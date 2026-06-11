@@ -22,11 +22,18 @@ public class GridBalancerStartupService(
     {
         var state = await workflows.GetWorkflowStateAsync(GridBalancingWorkflow.InstanceId, cancellation: stoppingToken);
 
-        if (state is { Exists: true })
+        if (state is { Exists: true, RuntimeStatus: WorkflowRuntimeStatus.Running })
         {
             logger.LogInformation("Singleton {InstanceId} already running ({Status}); leaving it be.", GridBalancingWorkflow.InstanceId, state.RuntimeStatus);
 
             return;
+        }
+        
+        if (state is { Exists: true, RuntimeStatus: WorkflowRuntimeStatus.Failed })
+        {
+            logger.LogInformation("Singleton {InstanceId} has failed ({Status}); recreating.", GridBalancingWorkflow.InstanceId, state.RuntimeStatus);
+
+            await workflows.TerminateWorkflowAsync(GridBalancingWorkflow.InstanceId, cancellation: stoppingToken);
         }
 
         await workflows.ScheduleNewWorkflowAsync(

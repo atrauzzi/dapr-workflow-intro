@@ -9,7 +9,7 @@ namespace DaprWorkflowIntro.Workflow;
 /// itself must stay deterministic so Dapr can replay it.
 /// </summary>
 public class ForecastDemandActivity(
-    ServiceProvider services,
+    IServiceProvider services,
     ILogger<ForecastDemandActivity> logger
 )
     : WorkflowActivity<string, double>
