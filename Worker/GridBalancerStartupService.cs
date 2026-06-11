@@ -20,29 +20,21 @@ public class GridBalancerStartupService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        var state = await workflows.GetWorkflowStateAsync(GridBalancingWorkflow.InstanceId, cancellation: stoppingToken);
+
+        if (state is { Exists: true })
         {
-            
-            var state = await workflows.GetWorkflowStateAsync(
-                GridBalancingWorkflow.InstanceId, cancellation: stoppingToken);
+            logger.LogInformation("Singleton {InstanceId} already running ({Status}); leaving it be.", GridBalancingWorkflow.InstanceId, state.RuntimeStatus);
 
-            if (state is { Exists: true, IsWorkflowRunning: true })
-            {
-                logger.LogInformation("Singleton {InstanceId} already running ({Status}); leaving it be.", GridBalancingWorkflow.InstanceId, state.RuntimeStatus);
-
-                return;
-            }
-
-            await workflows.ScheduleNewWorkflowAsync(
-                nameof(GridBalancingWorkflow),
-                GridBalancingWorkflow.InstanceId,
-                new GridState()
-            );
-
-            logger.LogInformation(
-                "Started singleton grid balancer {InstanceId}.",
-                GridBalancingWorkflow.InstanceId);
             return;
         }
+
+        await workflows.ScheduleNewWorkflowAsync(
+            nameof(GridBalancingWorkflow),
+            GridBalancingWorkflow.InstanceId,
+            new GridState()
+        );
+
+        logger.LogInformation("Started singleton grid balancer {InstanceId}.", GridBalancingWorkflow.InstanceId);
     }
 }

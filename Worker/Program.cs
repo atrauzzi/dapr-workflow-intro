@@ -62,7 +62,7 @@ app.MapPost("/grid/stop", async (DaprWorkflowClient workflows) =>
 });
 
 // Read the latest dispatch posture that the workflow persisted to MongoDB (via Dapr).
-app.MapGet("/grid", async (DaprClient dapr, string region = "PACIFIC-INTERTIE") =>
+app.MapGet("/grid", async (DaprClient dapr, string region) =>
 {
     var latest = await dapr.GetStateAsync<DispatchResult?>(
         DispatchPowerActivity.StateStore, $"grid:{region}:latest");
@@ -77,8 +77,5 @@ app.MapGet("/grid", async (DaprClient dapr, string region = "PACIFIC-INTERTIE") 
 //
 
 var running = app.RunAsync();
-
-var daprClient = app.Services.GetRequiredService<DaprClient>();
-await daprClient.WaitForSidecarAsync();
 
 await running;

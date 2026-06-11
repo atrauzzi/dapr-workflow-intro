@@ -8,11 +8,17 @@ namespace DaprWorkflowIntro.Workflow;
 /// Activities are where non-deterministic work belongs — the workflow body
 /// itself must stay deterministic so Dapr can replay it.
 /// </summary>
-public class ForecastDemandActivity(ILogger<ForecastDemandActivity> logger)
+public class ForecastDemandActivity(
+    ServiceProvider services,
+    ILogger<ForecastDemandActivity> logger
+)
     : WorkflowActivity<string, double>
 {
     public override Task<double> RunAsync(WorkflowActivityContext context, string regionId)
     {
+        // If scoped services are needed, create them here.
+        using var scope = services.CreateScope();
+
         // A wobble around a 12 GW base load. Random lives here, never in the workflow.
         var demand = 12_000 + Random.Shared.Next(-1_500, 1_500);
         logger.LogInformation("Forecast demand for {Region}: {Demand:N0} MW", regionId, demand);
