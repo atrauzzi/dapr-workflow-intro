@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="DaprWorkflowIntro.AppHost/DaprWorkflowIntro.AppHost.csproj" />
+  <Project Path="AppHost\AppHost.csproj" />
   <Project Path="ServiceDefaults\ServiceDefaults.csproj" />
   <Project Path="Worker\Worker.csproj" />
 </Solution>

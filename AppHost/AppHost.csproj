@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>9eea7318-0e12-4f40-aa13-6e5bb22e2e6f</UserSecretsId>
+    <RootNamespace>DaprWorkflowIntro.AppHost</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

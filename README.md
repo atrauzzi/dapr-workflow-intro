@@ -12,22 +12,32 @@ by the fixed id `grid-balancer`. It **auto-starts on launch** via a hosted servi
 already running (e.g. rehydrated from MongoDB after a restart), the service leaves it
 be, so the grid is never controlled by two competing instances.
 
-Each cycle the workflow:
+Each cycle the workflow operates on a single region (default `BRUSSELS-CAPITAL`) and:
 
 1. `ForecastDemandActivity` — predicts corridor demand (MW).
 2. `MeasureGenerationActivity` — measures available generation (MW).
 3. `DispatchPowerActivity` — dispatches power, derives grid frequency, and **persists
-   the decision to MongoDB** through the Dapr state store.
-4. Waits one cycle on a durable timer, then `ContinueAsNew` to loop with compacted history.
+   the decision to MongoDB** through the Dapr state store (a `:latest` document plus a
+   per-cycle snapshot per region).
+4. Waits one cycle (15 s) on a durable timer, then `ContinueAsNew` to loop with
+   compacted history.
+
+A **Diagrid dashboard** also runs alongside the workflow, giving a read-only view of the
+state stored in MongoDB.
 
 ## Projects
 
 | Project | Role |
 | --- | --- |
-| `DaprWorkflowIntro.AppHost` | Aspire app host — runs MongoDB + the workflow service with its Dapr sidecar. |
-| `DaprWorkflowIntro.Workflow` | ASP.NET Core service hosting the workflow, activities, and management endpoints. |
-| `DaprWorkflowIntro.ServiceDefaults` | Shared Aspire telemetry/health defaults. |
-| `dapr/components/statestore.yaml` | Dapr MongoDB state store component (`actorStateStore: true`). |
+| `DaprWorkflowIntro.AppHost` | Aspire app host — runs MongoDB, the workflow service with its Dapr sidecar, and the Diagrid dashboard. Declares the Dapr state store components inline. |
+| `Worker` | ASP.NET Core service (registered as `workflow` in Aspire) hosting the workflow, activities, and management endpoints. |
+| `ServiceDefaults` | Shared Aspire telemetry/health defaults. |
+
+The Dapr MongoDB state store component (`statestore`, `actorStateStore: true`) is
+generated programmatically in `AppHost.cs` rather than living in a static YAML file. A
+second, read-only variant (`directConnection=true`, no replica-set discovery) is emitted
+for the dashboard container — see the comments in `AppHost.cs` for why the two consumers
+need different connection params.
 
 ## Prerequisites
 
@@ -51,7 +61,7 @@ dotnet run --project DaprWorkflowIntro.AppHost
 ```
 
 Open the Aspire dashboard (URL printed on startup) to watch MongoDB, the workflow
-service, and its Dapr sidecar come up.
+service, its Dapr sidecar, and the Diagrid dashboard come up.
 
 ## Drive the demo
 
@@ -59,11 +69,11 @@ The singleton starts automatically. Use the workflow service base URL shown in t
 Aspire dashboard (`<workflow-url>` below) to observe it:
 
 ```bash
-# Check the live workflow status from the Dapr engine
+# Check the live workflow status from the Dapr workflow engine
 curl <workflow-url>/grid/status
 
-# Read the latest dispatch posture persisted to MongoDB
-curl <workflow-url>/grid
+# Read the latest dispatch posture persisted to MongoDB (region is required)
+curl "<workflow-url>/grid?region=BRUSSELS-CAPITAL"
 
 # Stop the singleton
 curl -X POST <workflow-url>/grid/stop
