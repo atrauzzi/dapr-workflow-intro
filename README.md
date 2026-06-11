@@ -29,7 +29,7 @@ state stored in MongoDB.
 
 | Project | Role |
 | --- | --- |
-| `DaprWorkflowIntro.AppHost` | Aspire app host — runs MongoDB, the workflow service with its Dapr sidecar, and the Diagrid dashboard. Declares the Dapr state store components inline. |
+| `AppHost` | Aspire app host — runs MongoDB, the workflow service with its Dapr sidecar, and the Diagrid dashboard. Declares the Dapr state store components inline. |
 | `Worker` | ASP.NET Core service (registered as `workflow` in Aspire) hosting the workflow, activities, and management endpoints. |
 | `ServiceDefaults` | Shared Aspire telemetry/health defaults. |
 
